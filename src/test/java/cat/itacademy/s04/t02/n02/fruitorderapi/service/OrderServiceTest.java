@@ -3,6 +3,7 @@ package cat.itacademy.s04.t02.n02.fruitorderapi.service;
 import cat.itacademy.s04.t02.n02.fruitorderapi.dtos.OrderItemRequestDto;
 import cat.itacademy.s04.t02.n02.fruitorderapi.dtos.OrderRequestDto;
 import cat.itacademy.s04.t02.n02.fruitorderapi.dtos.OrderResponseDto;
+import cat.itacademy.s04.t02.n02.fruitorderapi.exceptions.OrderNotFoundException;
 import cat.itacademy.s04.t02.n02.fruitorderapi.mapper.OrderMapper;
 import cat.itacademy.s04.t02.n02.fruitorderapi.model.Order;
 import cat.itacademy.s04.t02.n02.fruitorderapi.model.OrderItem;
@@ -15,9 +16,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -88,4 +89,32 @@ public class OrderServiceTest {
         verify(orderRepository).findAll();
     }
 
+    @Test
+    void getByIdReturnsOrderResponseWhenItExists () {
+        String orderId = "abc123";
+        LocalDate date = LocalDate.now().plusDays(2);
+        Order mockOrder = new Order(orderId, "Felipe", date,
+                List.of(new OrderItem("Apple", 5)));
+
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(mockOrder));
+
+        OrderResponseDto response = orderService.getOrderById(orderId);
+
+        assertEquals(orderId, response.id());
+        assertEquals("Felipe", response.clientName());
+        assertEquals(1, response.items().size());
+        verify(orderRepository).findById(orderId);
+    }
+
+    @Test
+    void getByIdThrowsExceptionWhenOrderNotExists() {
+        String orderId = "nf-id";
+        when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
+
+        assertThrows(OrderNotFoundException.class, () -> {
+            orderService.getOrderById(orderId);
+        });
+
+        verify(orderRepository).findById(orderId);
+    }
 }

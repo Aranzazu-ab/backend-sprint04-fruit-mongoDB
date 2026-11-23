@@ -104,6 +104,27 @@ public class OrderControllerTest {
                 .andExpect(jsonPath("$[1].clientName").value("Carla"));
     }
 
+    @Test
+    void getByIdReturns200WhenOrderExists() throws Exception {
+        Order order = new Order(null, "Felipe", LocalDate.now().plusDays(5),
+                List.of(new OrderItem("Apple", 5)));
+        Order savedOrder = orderRepository.save(order);
+
+        mockMvc.perform(get("/orders/" + savedOrder.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(savedOrder.getId()))
+                .andExpect(jsonPath("$.clientName").value("Felipe"))
+                .andExpect(jsonPath("$.items[0].fruitName").value("Apple"));
+    }
+
+    @Test
+    void getByIdReturns404WhenOrderNotExist() throws Exception {
+        mockMvc.perform(get("/orders/not-id-123"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.message").exists());
+    }
+
     private ResultActions postOrder(String body) throws Exception {
         return mockMvc.perform(post("/orders")
                 .contentType(MediaType.APPLICATION_JSON)
