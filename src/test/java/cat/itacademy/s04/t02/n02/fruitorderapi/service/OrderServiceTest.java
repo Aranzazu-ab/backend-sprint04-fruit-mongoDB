@@ -110,9 +110,7 @@ public class OrderServiceTest {
         String orderId = "nf-id";
         when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
 
-        assertThrows(OrderNotFoundException.class, () -> {
-            orderService.getOrderById(orderId);
-        });
+        assertThrows(OrderNotFoundException.class, () -> orderService.getOrderById(orderId));
 
         verify(orderRepository).findById(orderId);
     }
@@ -156,10 +154,30 @@ public class OrderServiceTest {
 
         when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
 
-        assertThrows(OrderNotFoundException.class, () -> {
-            orderService.updateOrder(orderId, request);
-        });
+        assertThrows(OrderNotFoundException.class, () -> orderService.updateOrder(orderId, request));
 
         verify(orderRepository, never()).save(any(Order.class));
+    }
+
+    @Test
+    void deletesOrderWhenExists() {
+        String orderId = "abc123";
+        Order order = new Order(orderId, "Felipe", LocalDate.now().plusDays(1), List.of());
+
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+        orderService.deleteOrder(orderId);
+
+        verify(orderRepository).findById(orderId);
+        verify(orderRepository).delete(order);
+    }
+
+    @Test
+    void deleteThrowsOrderNotFoundExceptionWhenNotExists() {
+        String orderId = "not-found-id";
+        when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
+
+        assertThrows(OrderNotFoundException.class, () -> orderService.deleteOrder(orderId));
+
+        verify(orderRepository, never()).delete(any(Order.class));
     }
 }

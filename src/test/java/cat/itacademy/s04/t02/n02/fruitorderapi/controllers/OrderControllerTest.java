@@ -150,6 +150,26 @@ public class OrderControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    void deleteReturns204WhenOrderExists() throws Exception {
+        Order order = new Order(null, "Felipe", LocalDate.now().plusDays(5),
+                List.of(new OrderItem("Apple", 5)));
+        Order saved = orderRepository.save(order);
+
+        mockMvc.perform(delete("/orders/" + saved.getId()))
+                .andExpect(status().isNoContent());
+
+        assertEquals(0, orderRepository.count());
+    }
+
+    @Test
+    void deleteReturns404WhenOrderNotExist() throws Exception {
+        mockMvc.perform(delete("/orders/not-id-123"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.message").exists());
+    }
+
     private ResultActions postOrder(String body) throws Exception {
         return mockMvc.perform(post("/orders")
                 .contentType(MediaType.APPLICATION_JSON)
