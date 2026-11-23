@@ -17,8 +17,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -123,6 +122,32 @@ public class OrderControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.message").exists());
+    }
+
+    @Test
+    void updateReturns200AndUpdateWhenDataIsValid() throws Exception {
+        Order original = new Order(null, "Original", LocalDate.now().plusDays(5),
+                List.of(new OrderItem("Apple", 5)));
+        Order saved = orderRepository.save(original);
+
+        String updateBody = json("Updated", LocalDate.now().plusDays(10), itemJson("Banana", 8));
+
+        mockMvc.perform(put("/orders/" + saved.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(updateBody))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.clientName").value("Updated"))
+                .andExpect(jsonPath("$.items[0].fruitName").value("Banana"));
+    }
+
+    @Test
+    void updateReturns404WhenInvalidId() throws Exception {
+        String updateBody = json("Updated", LocalDate.now().plusDays(10), itemJson("Banana", 8));
+
+        mockMvc.perform(put("/orders/not-id-123")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(updateBody))
+                .andExpect(status().isNotFound());
     }
 
     private ResultActions postOrder(String body) throws Exception {

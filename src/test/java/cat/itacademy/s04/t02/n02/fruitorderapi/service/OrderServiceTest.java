@@ -20,8 +20,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class OrderServiceTest {
@@ -116,5 +115,51 @@ public class OrderServiceTest {
         });
 
         verify(orderRepository).findById(orderId);
+    }
+
+    @Test
+    void updateReturnsResponseAndUpdateWhenOrderExists() {
+        String orderId = "abc123";
+        OrderRequestDto request = new OrderRequestDto(
+                "Updated",
+                LocalDate.now().plusDays(5),
+                List.of(new OrderItemRequestDto("Banana", 8))
+        );
+
+        Order existingOrder = new Order(
+                orderId,
+                "Original",
+                LocalDate.now().plusDays(1),
+                List.of(new OrderItem("Apple", 5))
+        );
+
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(existingOrder));
+        when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        OrderResponseDto response = orderService.updateOrder(orderId, request);
+
+
+        assertEquals("Updated", response.clientName());
+        assertEquals(8, response.items().get(0).quantityInKilos());
+        assertEquals("Updated", existingOrder.getClientName());
+
+        verify(orderRepository).findById(orderId);
+        verify(orderRepository).save(existingOrder);
+    }
+
+    @Test
+    void updateThrowsOrderNotFoundExceptionWhenOrdenNotExist() {
+        String orderId = "not-found-id";
+        OrderRequestDto request = new OrderRequestDto(
+                "Felipe", LocalDate.now().plusDays(5), List.of()
+        );
+
+        when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
+
+        assertThrows(OrderNotFoundException.class, () -> {
+            orderService.updateOrder(orderId, request);
+        });
+
+        verify(orderRepository, never()).save(any(Order.class));
     }
 }
