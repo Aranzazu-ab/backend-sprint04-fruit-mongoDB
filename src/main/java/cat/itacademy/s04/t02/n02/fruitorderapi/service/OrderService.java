@@ -9,4 +9,5 @@ public interface OrderService {
     OrderResponseDto createOrder(OrderRequestDto requestDTO);
     List<OrderResponseDto> getAllOrders();
     OrderResponseDto getOrderById(String id);
+    OrderResponseDto updateOrder(String id, OrderRequestDto requestDto);
 }

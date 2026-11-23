@@ -39,7 +39,25 @@ public class OrderServiceImpl implements OrderService {
     public OrderResponseDto getOrderById(String id) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new OrderNotFoundException("Order with ID: " + id +" not found."));
+
         return orderMapper.toResponseDto(order);
+    }
+
+    @Override
+    public OrderResponseDto updateOrder(String id, OrderRequestDto requestDto) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new OrderNotFoundException("Order with ID: " + id +" not found."));
+
+        order.setClientName(requestDto.clientName());
+        order.setDeliveryDate(requestDto.deliveryDate());
+
+        order.setItems(requestDto.items().stream()
+                .map(orderMapper::toItemEntity)
+                .toList());
+
+        Order updatedOrder = orderRepository.save(order);
+
+        return orderMapper.toResponseDto(updatedOrder);
     }
 
 }

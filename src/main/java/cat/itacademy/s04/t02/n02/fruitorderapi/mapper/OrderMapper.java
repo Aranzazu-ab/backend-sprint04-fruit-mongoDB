@@ -29,7 +29,7 @@ public class OrderMapper {
         return new OrderResponseDto(order.getId(), order.getClientName(), order.getDeliveryDate(), items);
     }
 
-    private OrderItem toItemEntity(OrderItemRequestDto dto) {
+    public OrderItem toItemEntity(OrderItemRequestDto dto) {
         return new OrderItem(dto.fruitName(), dto.quantityInKilos());
     }
 
