@@ -2,6 +2,7 @@ package cat.itacademy.s04.t02.n02.fruitorderapi.service;
 
 import cat.itacademy.s04.t02.n02.fruitorderapi.dtos.OrderRequestDto;
 import cat.itacademy.s04.t02.n02.fruitorderapi.dtos.OrderResponseDto;
+import cat.itacademy.s04.t02.n02.fruitorderapi.exceptions.OrderNotFoundException;
 import cat.itacademy.s04.t02.n02.fruitorderapi.mapper.OrderMapper;
 import cat.itacademy.s04.t02.n02.fruitorderapi.model.Order;
 import cat.itacademy.s04.t02.n02.fruitorderapi.repository.OrderRepository;
@@ -33,4 +34,12 @@ public class OrderServiceImpl implements OrderService {
                 .map(orderMapper::toResponseDto)
                 .toList();
     }
+
+    @Override
+    public OrderResponseDto getOrderById(String id) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new OrderNotFoundException("Order with ID: " + id +" not found."));
+        return orderMapper.toResponseDto(order);
+    }
+
 }
