@@ -2,7 +2,7 @@ package cat.itacademy.s04.t02.n02.fruitorderapi.controllers;
 
 import cat.itacademy.s04.t02.n02.fruitorderapi.dtos.OrderRequestDto;
 import cat.itacademy.s04.t02.n02.fruitorderapi.dtos.OrderResponseDto;
-import cat.itacademy.s04.t02.n02.fruitorderapi.service.OrderService;
+import cat.itacademy.s04.t02.n02.fruitorderapi.service.OrderServiceImpl;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/orders")
 public class OrderController {
 
-    private final OrderService orderService;
+    private final OrderServiceImpl orderService;
 
-    public OrderController(OrderService orderService) {
+    public OrderController(OrderServiceImpl orderService) {
         this.orderService = orderService;
     }
 
