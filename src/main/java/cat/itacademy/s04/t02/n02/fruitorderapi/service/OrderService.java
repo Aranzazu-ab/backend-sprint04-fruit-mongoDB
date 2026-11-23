@@ -5,7 +5,9 @@ import cat.itacademy.s04.t02.n02.fruitorderapi.dtos.OrderResponseDto;
 import cat.itacademy.s04.t02.n02.fruitorderapi.mapper.OrderMapper;
 import cat.itacademy.s04.t02.n02.fruitorderapi.model.Order;
 import cat.itacademy.s04.t02.n02.fruitorderapi.repository.OrderRepository;
+import org.springframework.stereotype.Service;
 
+@Service
 public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
