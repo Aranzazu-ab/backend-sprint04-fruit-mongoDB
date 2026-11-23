@@ -5,6 +5,7 @@ import cat.itacademy.s04.t02.n02.fruitorderapi.dtos.OrderRequestDto;
 import cat.itacademy.s04.t02.n02.fruitorderapi.dtos.OrderResponseDto;
 import cat.itacademy.s04.t02.n02.fruitorderapi.mapper.OrderMapper;
 import cat.itacademy.s04.t02.n02.fruitorderapi.model.Order;
+import cat.itacademy.s04.t02.n02.fruitorderapi.model.OrderItem;
 import cat.itacademy.s04.t02.n02.fruitorderapi.repository.OrderRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,6 +17,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -33,10 +35,10 @@ public class OrderServiceTest {
     }
 
     @Test
-    void create_withValidRequest_savesOrderAndReturnsResponseWithId() {
+    void createReturnsResponseAndSavesWhenRequestIsValid() {
         LocalDate deliveryDate = LocalDate.now().plusDays(3);
         OrderRequestDto request = new OrderRequestDto(
-                "Maria",
+                "Carla",
                 deliveryDate,
                 List.of(new OrderItemRequestDto("Apple", 5)));
 
@@ -49,12 +51,41 @@ public class OrderServiceTest {
         OrderResponseDto response = orderService.createOrder(request);
 
         assertEquals("abc123", response.id());
-        assertEquals("Maria", response.clientName());
+        assertEquals("Carla", response.clientName());
         assertEquals(deliveryDate, response.deliveryDate());
         assertEquals(1, response.items().size());
         assertEquals("Apple", response.items().get(0).fruitName());
         assertEquals(5, response.items().get(0).quantityInKilos());
         verify(orderRepository).save(any(Order.class));
+    }
+
+    @Test
+    void getAllOrdersReturnsEmptyListWhenNoOrders() {
+        when(orderRepository.findAll()).thenReturn(List.of());
+
+        List<OrderResponseDto> responses = orderService.getAllOrders();
+
+        assertTrue(responses.isEmpty());
+        verify(orderRepository).findAll();
+    }
+
+    @Test
+    void getAllOrdersReturnsListWhenOrdersInLists() {
+        LocalDate date1 = LocalDate.now().plusDays(1);
+        Order order1 = new Order("abc123", "Carla", date1,
+                List.of(new OrderItem("Apple", 5)));
+
+        when(orderRepository.findAll()).thenReturn(List.of(order1));
+
+        List<OrderResponseDto> responses = orderService.getAllOrders();
+
+        assertEquals(1, responses.size());
+        assertEquals("Carla", responses.get(0).clientName());
+        assertEquals(date1, responses.get(0).deliveryDate());
+        assertEquals(1, responses.get(0).items().size());
+        assertEquals("Apple", responses.get(0).items().get(0).fruitName());
+
+        verify(orderRepository).findAll();
     }
 
 }

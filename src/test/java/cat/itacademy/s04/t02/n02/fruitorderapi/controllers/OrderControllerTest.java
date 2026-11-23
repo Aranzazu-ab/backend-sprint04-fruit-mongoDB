@@ -1,6 +1,8 @@
 package cat.itacademy.s04.t02.n02.fruitorderapi.controllers;
 
 
+import cat.itacademy.s04.t02.n02.fruitorderapi.model.Order;
+import cat.itacademy.s04.t02.n02.fruitorderapi.model.OrderItem;
 import cat.itacademy.s04.t02.n02.fruitorderapi.repository.OrderRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,8 +14,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -33,7 +37,7 @@ public class OrderControllerTest {
     }
 
     @Test
-    void create_withValidData_returns201AndSavesOrder() throws Exception {
+    void createReturns201AndSavesOrderWhenDataValid() throws Exception {
         postOrder(json("Felipe", LocalDate.now().plusDays(5), itemJson("Apple", 5)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").isNotEmpty())
@@ -45,7 +49,7 @@ public class OrderControllerTest {
     }
 
     @Test
-    void create_withBlankClientName_returns400AndSavesNothing() throws Exception {
+    void createReturns400NoSaveWhenBlankClientName() throws Exception {
         postOrder(json("", LocalDate.now().plusDays(5), itemJson("Apple", 5)))
                 .andExpect(status().isBadRequest());
 
@@ -53,7 +57,7 @@ public class OrderControllerTest {
     }
 
     @Test
-    void create_withTodayAsDeliveryDate_returns400() throws Exception {
+    void createReturns400WhenDeliveryDateIsToday() throws Exception {
         postOrder(json("Felipe", LocalDate.now(), itemJson("Apple", 5)))
                 .andExpect(status().isBadRequest());
 
@@ -61,7 +65,7 @@ public class OrderControllerTest {
     }
 
     @Test
-    void create_withEmptyItems_returns400() throws Exception {
+    void createReturns400WhenItemsAreEmpty() throws Exception {
         postOrder(json("Felipe", LocalDate.now().plusDays(5), ""))
                 .andExpect(status().isBadRequest());
 
@@ -69,11 +73,35 @@ public class OrderControllerTest {
     }
 
     @Test
-    void create_withZeroQuantity_returns400() throws Exception {
+    void createReturns400WhenQuantityIsZero() throws Exception {
         postOrder(json("Felipe", LocalDate.now().plusDays(5), itemJson("Apple", 0)))
                 .andExpect(status().isBadRequest());
 
         assertEquals(0, orderRepository.count());
+    }
+
+    @Test
+    void getAllReturns200WhenNoOrders() throws Exception {
+        mockMvc.perform(get("/orders"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isEmpty());
+    }
+
+    @Test
+    void getAllReturns200AndListWhenExistingOrders() throws Exception {
+        Order order1 = new Order(null, "Felipe", LocalDate.now().plusDays(1),
+                List.of(new OrderItem("Apple", 5)));
+        Order order2 = new Order(null, "Carla", LocalDate.now().plusDays(2),
+                List.of(new OrderItem("Pear", 3)));
+
+        orderRepository.saveAll(List.of(order1, order2));
+
+        mockMvc.perform(get("/orders"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()").value(2))
+                .andExpect(jsonPath("$[0].clientName").value("Felipe"))
+                .andExpect(jsonPath("$[1].clientName").value("Carla"));
     }
 
     private ResultActions postOrder(String body) throws Exception {
@@ -92,7 +120,7 @@ public class OrderControllerTest {
                 """.formatted(clientName, deliveryDate, items);
     }
 
-    private String itemJson(String fruitName, int quantityInKilos) {
+    private String itemJson(String fruitName, Integer quantityInKilos) {
         return """
                 { "fruitName": "%s", "quantityInKilos": %d }
                 """.formatted(fruitName, quantityInKilos);
