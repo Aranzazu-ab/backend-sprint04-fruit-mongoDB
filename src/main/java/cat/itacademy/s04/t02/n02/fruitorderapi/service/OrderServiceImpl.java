@@ -60,4 +60,12 @@ public class OrderServiceImpl implements OrderService {
         return orderMapper.toResponseDto(updatedOrder);
     }
 
+    @Override
+    public void deleteOrder(String id) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new OrderNotFoundException("Order with ID: " + id +" not found."));
+
+        orderRepository.delete(order);
+    }
+
 }
