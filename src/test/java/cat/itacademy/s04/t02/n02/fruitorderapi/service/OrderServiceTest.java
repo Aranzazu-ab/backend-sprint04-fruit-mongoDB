@@ -46,7 +46,7 @@ public class OrderServiceTest {
             return order;
         });
 
-        OrderResponseDto response = orderService.create(request);
+        OrderResponseDto response = orderService.createOrder(request);
 
         assertEquals("abc123", response.id());
         assertEquals("Maria", response.clientName());

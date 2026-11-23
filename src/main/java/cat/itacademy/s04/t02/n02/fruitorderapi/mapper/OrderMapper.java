@@ -18,7 +18,7 @@ public class OrderMapper {
                 .map(this::toItemEntity)
                 .toList();
 
-        return new Order(request.clientName(), request.deliveryDate(),items);
+        return new Order(null, request.clientName(), request.deliveryDate(),items);
     }
 
     public OrderResponseDto toResponseDto (Order order){
@@ -29,11 +29,11 @@ public class OrderMapper {
         return new OrderResponseDto(order.getId(), order.getClientName(), order.getDeliveryDate(), items);
     }
 
-    private OrderItem toItemEntity(OrderItemRequestDto item) {
-        return new OrderItem(item.fruitName(), item.quantityInKilos());
+    private OrderItem toItemEntity(OrderItemRequestDto dto) {
+        return new OrderItem(dto.fruitName(), dto.quantityInKilos());
     }
 
-    private OrderItemResponseDto toItemResponse(OrderItem item) {
-        return new OrderItemResponseDto(item.getFruitName(), item.getQuantityInKilos());
+    private OrderItemResponseDto toItemResponse(OrderItem dto) {
+        return new OrderItemResponseDto(dto.getFruitName(), dto.getQuantityInKilos());
     }
 }

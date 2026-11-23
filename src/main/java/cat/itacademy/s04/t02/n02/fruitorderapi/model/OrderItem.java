@@ -1,30 +1,13 @@
 package cat.itacademy.s04.t02.n02.fruitorderapi.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class OrderItem {
     private String fruitName;
-    private int quantityInKilos;
-
-    public OrderItem() {
-    }
-
-    public OrderItem(String fruitName, int quantityInKilos) {
-        this.fruitName = fruitName;
-        this.quantityInKilos = quantityInKilos;
-    }
-
-    public String getFruitName() {
-        return fruitName;
-    }
-
-    public void setFruitName(String fruitName) {
-        this.fruitName = fruitName;
-    }
-
-    public int getQuantityInKilos() {
-        return quantityInKilos;
-    }
-
-    public void setQuantityInKilos(int quantityInKilos) {
-        this.quantityInKilos = quantityInKilos;
-    }
+    private Integer quantityInKilos;
 }

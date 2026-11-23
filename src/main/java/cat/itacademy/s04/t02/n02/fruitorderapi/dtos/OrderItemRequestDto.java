@@ -8,6 +8,6 @@ public record OrderItemRequestDto(
         String fruitName,
 
         @Positive(message = "Quantity must be greater than zero")
-        int quantityInKilos
+        Integer quantityInKilos
 ) {
 }

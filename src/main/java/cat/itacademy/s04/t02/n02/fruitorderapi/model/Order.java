@@ -1,5 +1,8 @@
 package cat.itacademy.s04.t02.n02.fruitorderapi.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -8,6 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Document(collection = "orders")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Order {
     @Id
     private String id;
@@ -15,42 +21,4 @@ public class Order {
     private String clientName;
     private LocalDate deliveryDate;
     private List<OrderItem> items = new ArrayList<>();
-
-    public Order(String clientName, LocalDate deliveryDate, List<OrderItem> items) {
-        this.clientName = clientName;
-        this.deliveryDate = deliveryDate;
-        this.items = items;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getClientName() {
-        return clientName;
-    }
-
-    public void setClientName(String clientName) {
-        this.clientName = clientName;
-    }
-
-    public LocalDate getDeliveryDate() {
-        return deliveryDate;
-    }
-
-    public void setDeliveryDate(LocalDate deliveryDate) {
-        this.deliveryDate = deliveryDate;
-    }
-
-    public List<OrderItem> getItems() {
-        return items;
-    }
-
-    public void setItems(List<OrderItem> items) {
-        this.items = items;
-    }
 }
